@@ -26,6 +26,7 @@ public class GameController {
 		player = new Player(100, 100, 4, 30, 30);
 		gameClock = new GameClock(5);
 		gameCanvas = new GameCanvas(Constants.WINDOW_WIDTH, Constants.WINDOW_HEIGHT);
+		player.setup();
 		gameDarkness = 0.5; // ค่าเริ่มต้น
 	}
 	

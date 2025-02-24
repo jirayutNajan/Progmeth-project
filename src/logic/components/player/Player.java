@@ -13,6 +13,7 @@ import logic.game.GameController;
 import logic.map.SelectTile;
 import logic.map.Tile;
 import logic.map.TileMap;
+import logic.map.Vegetable;
 
 public class Player {
 	private double x;
@@ -41,13 +42,12 @@ public class Player {
         setPreviousX(startX);
         setPreviousY(startY);
         setImage(new Image("player/idleDown1.png"));
-        this.gameCanvas = GameController.getGameCanvas();
     }
 
     public void updatePlayer(Set<KeyCode> activeKeys, ArrayList<TileMap> tileMapsLayers) {
-    	if(this.gameCanvas == null) {
-    		this.gameCanvas = GameController.getGameCanvas();
-    	}
+    	this.selectTile.setX();
+    	this.selectTile.setY();
+    	
         double newX = this.getX();
         double newY = this.getY();
                 
@@ -87,23 +87,15 @@ public class Player {
         	this.gameCanvas.loadFarmScene2();
         }
         
+        if(activeKeys.contains(KeyCode.SPACE)) {
+        	new Vegetable(selectTile.getX(), selectTile.getY());
+        }
+        
         snapToTile();
     }
 
     private void snapToTile() {
     	if(!isMoving()) {
-//    		if(direction == Direction.RIGHT) {
-//    			this.x = Math.ceil(this.x / Constants.TILE_SIZE) * Constants.TILE_SIZE;    			
-//    		}
-//    		else if (direction == Direction.LEFT) {
-//    			this.x = Math.floor(this.x / Constants.TILE_SIZE) * Constants.TILE_SIZE;    			
-//    		}
-//    		else if(direction == Direction.UP) {
-//    			this.y = Math.floor(this.y / Constants.TILE_SIZE) * Constants.TILE_SIZE;
-//    		}
-//    		else if(direction == Direction.DOWN) {
-//    			this.y = Math.ceil(this.y / Constants.TILE_SIZE) * Constants.TILE_SIZE;
-//    		}
     		this.x = Math.round(this.x / Constants.TILE_SIZE) * Constants.TILE_SIZE;
     		this.y = Math.round(this.y / Constants.TILE_SIZE) * Constants.TILE_SIZE;
     	}
@@ -193,6 +185,11 @@ public class Player {
         gc.drawImage(this.image, x - Constants.TILE_SIZE/2, y - Constants.TILE_SIZE/2, Constants.TILE_SIZE * 2, Constants.TILE_SIZE * 2);
     }
 
+    public void setup() {
+    	this.gameCanvas = GameController.getGameCanvas();
+    	this.selectTile.loadPlayer();
+    }
+    
     public Direction getDirection() {
         return direction;
     }

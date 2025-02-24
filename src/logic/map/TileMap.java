@@ -1,13 +1,12 @@
 package logic.map;
 
 import javafx.scene.canvas.GraphicsContext;
-import logic.components.Constants;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TileMap {
     private Tile[][] map;
@@ -16,25 +15,36 @@ public class TileMap {
     //tile layer 1 new tile ปกติไม่ต้องมี static
     //tile ที่ต้องมี static คืออันพิเศษ
     
-    public TileMap(String csvFile, int tileSize, int layer) {
+    public TileMap(String csvFile, int layer) {
         setLayer(layer);
         loadTileMap(csvFile);
+    }
+    
+    public TileMap(int layer) {
+    	setMap(new Tile[32][24]);
+    	setLayer(layer);
     }
 
     private void loadTileMap(String filePath) {
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
-            map = br.lines()
-                    .map(line -> line.split(","))
-                    .map(arr -> {
-                        Tile[] row = new Tile[arr.length];
-                        for (int i = 0; i < arr.length; i++) {
-                            int tileId = Integer.parseInt(arr[i].trim());
-                            if(tileId == 0) continue;
-                            row[i] = new Tile("/tileImage/tile" + tileId + ".png", this.layer, tileId);
-                        }
-                        return row;
-                    })
-                    .toArray(Tile[][]::new);
+            List<Tile[]> tempMap = new ArrayList<>();
+            int y = 0; // ใช้เป็นตัวแปรแถว
+
+            for (String line; (line = br.readLine()) != null; y++) {
+                String[] arr = line.split(",");
+                Tile[] row = new Tile[arr.length];
+
+                for (int x = 0; x < arr.length; x++) { // ใช้ x เป็นตัวระบุคอลัมน์
+                    int tileId = Integer.parseInt(arr[x].trim());
+                    if (tileId == 0) continue;
+                    
+                    // สร้าง Tile พร้อมพิกัด (x, y)
+                    row[x] = new Tile("/tileImage/tile" + tileId + ".png", this.layer, tileId, x, y);
+                }
+                tempMap.add(row);
+            }
+
+            map = tempMap.toArray(new Tile[0][]);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -45,11 +55,23 @@ public class TileMap {
             for (int x = 0; x < map[y].length; x++) {
                 Tile tile = map[y][x];
                 if (tile != null) {
-                	tile.render(gc, x * Constants.TILE_SIZE, y * Constants.TILE_SIZE);
+                	tile.render(gc);
                 }
             }
         }
     }
+    
+    public void setTile(Tile tile, int x, int y) {
+    	this.map[x][y] = tile;
+    }
+    
+	public Tile[][] getMap() {
+		return map;
+	}
+
+	public void setMap(Tile[][] map) {
+		this.map = map;
+	}
 
 	public int getLayer() {
 		return layer;

@@ -14,7 +14,6 @@ public class SelectTile extends Tile {
 	public SelectTile() {
 		super(selectTileImageURL);
 		setTile(null);
-		this.player = GameController.getPlayer();
 	}
 
 	public Tile getTile() {
@@ -25,15 +24,7 @@ public class SelectTile extends Tile {
 		this.tile = tile;
 	}
 	
-	public void render(GraphicsContext gc) {
-		super.render(gc, calculatePosition()[0], calculatePosition()[1]);
-	}
-	
 	public int[] calculatePosition() {
-	    if (player == null) {
-	        player = GameController.getPlayer(); // ลองดึงค่าผู้เล่นอีกครั้ง
-	    }
-
 	    double dX = player.getX();
 	    double dY = player.getY();
 	    Direction direction = player.getDirection();
@@ -49,12 +40,21 @@ public class SelectTile extends Tile {
 	    }
 
 	    int[] tilePosition = player.getTilePosition(dX, dY);
-	    tilePosition[0] *= Constants.TILE_SIZE;
-	    tilePosition[1] *= Constants.TILE_SIZE;
 	    setTile(GameController.getGameCanvas().getTileMapsLayers().get(0).getTileAt(tilePosition[0]/Constants.TILE_SIZE, tilePosition[1]/Constants.TILE_SIZE));
-	    System.out.println(tile.getId());
 
 	    return tilePosition;
+	}
+	
+	public void loadPlayer() {
+		this.player = GameController.getPlayer();
+	}
+	
+	public void setX() {
+		super.setX(calculatePosition()[0]);
+	}
+	
+	public void setY() {
+		super.setY(calculatePosition()[1]);
 	}
 
 }	

@@ -113,7 +113,7 @@ public class GameCanvas extends Canvas {
 	public ArrayList<TileMap> getTileMapsLayers() {
 		return tileMapsLayers;
 	}
-
+	
 	public void setTileMapsLayers(ArrayList<TileMap> tileMapsLayers) {
 		this.tileMapsLayers = tileMapsLayers;
 	}
