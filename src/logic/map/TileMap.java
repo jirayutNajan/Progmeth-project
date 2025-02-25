@@ -1,6 +1,7 @@
 package logic.map;
 
 import javafx.scene.canvas.GraphicsContext;
+import logic.components.Constants;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -39,7 +40,15 @@ public class TileMap {
                     if (tileId == 0) continue;
                     
                     // สร้าง Tile พร้อมพิกัด (x, y)
-                    row[x] = new Tile("/tileImage/tile" + tileId + ".png", this.layer, tileId, x, y);
+                    if(this.layer == Constants.LAYER_FARMLAND) {
+                    	row[x] = new Farmland(x, y);
+                    }
+                    else if(this.layer == Constants.LAYER_DOOR) {
+                    	row[x] = new Door("/tileImage/tile" + tileId + ".png", x, y);
+                    }
+                    else {
+                    	row[x] = new Tile("/tileImage/tile" + tileId + ".png", this.layer, tileId, x, y);
+                    }
                 }
                 tempMap.add(row);
             }
@@ -62,7 +71,7 @@ public class TileMap {
     }
     
     public void setTile(Tile tile, int x, int y) {
-    	this.map[x][y] = tile;
+    	this.map[y][x] = tile;
     }
     
 	public Tile[][] getMap() {

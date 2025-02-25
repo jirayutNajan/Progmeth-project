@@ -10,6 +10,7 @@ public class Tile {
     private int id;
     private int x;
     private int y;
+    private String name = "test";
 
     public Tile(String imagePath, int layer, int id, int x, int y) {
     	setImage(new Image(imagePath));
@@ -72,6 +73,16 @@ public class Tile {
 	public void setY(int y) {
 		this.y = y;
 	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
     
+	
+	
 	
 }

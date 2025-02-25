@@ -1,23 +1,27 @@
 package logic.components.player;
 
 import java.util.ArrayList;
-import java.util.Set;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import logic.components.Constants;
 import logic.components.Direction;
+import logic.components.Inventory;
 import logic.components.gameScene.GameCanvas;
 import logic.game.GameController;
+import logic.map.Farmland;
 import logic.map.SelectTile;
 import logic.map.Tile;
 import logic.map.TileMap;
-import logic.map.Vegetable;
+import logic.map.vegetable.BaseVegetable;
+import logic.map.vegetable.Potato;
+import logic.map.vegetable.Tomato;
 
 public class Player {
 	private double x;
     private double y;
+    private int corX, corY;
     private double speed;
     private double width;
     private double height;
@@ -30,6 +34,7 @@ public class Player {
 	private long lastFrameTime = 0;
 	private static final long FRAME_DURATION = 150_000_000; // 150ms
 	private GameCanvas gameCanvas;
+	private Inventory inventory;
     
     public Player(double startX, double startY, double speed, double width, double height) {
         setX(startX);
@@ -44,51 +49,81 @@ public class Player {
         setImage(new Image("player/idleDown1.png"));
     }
 
-    public void updatePlayer(Set<KeyCode> activeKeys, ArrayList<TileMap> tileMapsLayers) {
+    public void updatePlayer() {
+    	animate();
+    	
     	this.selectTile.setX();
     	this.selectTile.setY();
+    	this.corX = (int) (this.x/Constants.TILE_SIZE);
+		this.corY = (int) (this.y/Constants.TILE_SIZE);
     	
         double newX = this.getX();
         double newY = this.getY();
                 
-        if (activeKeys.size() > 1) return;
-
-        animate(activeKeys);
+//        if (this.gameCanvas.getActiveKeys().size() > 1) return;
         
         previousX = newX;
         previousY = newY;
 
-        if (activeKeys.contains(KeyCode.W)) {
+        if (this.gameCanvas.getActiveKeys().contains(KeyCode.W)) {
             setDirection(Direction.UP);
-            if (!checkCollision(newX, newY - this.getSpeed(), tileMapsLayers)) {
+            if (!checkCollision(newX, newY - this.getSpeed(), this.gameCanvas.getTileMapsLayers())) {
                 this.moveUp();
             }
         }
-        if (activeKeys.contains(KeyCode.S)) {
+        if (this.gameCanvas.getActiveKeys().contains(KeyCode.S)) {
             setDirection(Direction.DOWN);
-            if (!checkCollision(newX, newY + this.getSpeed(), tileMapsLayers)) {
+            if (!checkCollision(newX, newY + this.getSpeed(), this.gameCanvas.getTileMapsLayers())) {
                 this.moveDown();
             }
         }
-        if (activeKeys.contains(KeyCode.A)) {
+        if (this.gameCanvas.getActiveKeys().contains(KeyCode.A)) {
             setDirection(Direction.LEFT);
-            if (!checkCollision(newX - this.getSpeed(), newY, tileMapsLayers)) {
+            if (!checkCollision(newX - this.getSpeed(), newY, this.gameCanvas.getTileMapsLayers())) {
                 this.moveLeft();
             }
         }
-        if (activeKeys.contains(KeyCode.D)) {
+        if (this.gameCanvas.getActiveKeys().contains(KeyCode.D)) {
             setDirection(Direction.RIGHT);
-            if (!checkCollision(newX + this.getSpeed(), newY, tileMapsLayers)) {
+            if (!checkCollision(newX + this.getSpeed(), newY, this.gameCanvas.getTileMapsLayers())) {
                 this.moveRight();
             }
         }
         
-        if (activeKeys.contains(KeyCode.G)) {
-        	this.gameCanvas.loadFarmScene2();
+        if(this.gameCanvas.getActiveKeys().contains(KeyCode.SPACE)) {
+        	if(inventory.getCurrentImageIndex() == 1) {
+            	Tile selected = selectTile.getTile();
+            	if(selected != null) {
+            		if(selected instanceof BaseVegetable) {
+            			((BaseVegetable) selected).harvest();
+            			// add score
+            		}
+                }
+        	}
+        	else if(inventory.getCurrentImageIndex() == 2) {
+        		if(selectTile.getTile() instanceof Farmland) {
+        			new Potato(selectTile.getX(), selectTile.getY());
+        		}
+        	}
+        	else if(inventory.getCurrentImageIndex() == 3) {
+        		if(selectTile.getTile() instanceof Farmland) {
+            		new Tomato(selectTile.getX(), selectTile.getY());
+            	}
+        	}
+        	// ผัก 3 @saint
         }
         
-        if(activeKeys.contains(KeyCode.SPACE)) {
-        	new Vegetable(selectTile.getX(), selectTile.getY());
+        if(this.gameCanvas.getActiveKeys().contains(KeyCode.P)) {
+        	gameCanvas.loadCityScene();
+        }
+        
+        if(gameCanvas.getTileMapsLayers().get(Constants.LAYER_DOOR).getTileAt(corX, corY) != null) {
+        	if(gameCanvas.getMapName() == "farm") {
+        		gameCanvas.loadCityScene();
+        	}
+        	else if(gameCanvas.getMapName() == "city") {
+        		gameCanvas.loadFarmScene();
+        	}
         }
         
         snapToTile();
@@ -124,7 +159,7 @@ public class Player {
 
         for (TileMap tilemap : tileMapsLayers) {
             Tile tile = tilemap.getTileAt(tileX, tileY);
-            if (tile != null && tile.getLayer() > 0) {
+            if (tile != null && tile.getLayer() == Constants.LAYER_UNPASS) {
                 return true;
             }
         }
@@ -137,10 +172,10 @@ public class Player {
         return new int[] {tileX, tileY};
     }
 
-    private void animate(Set<KeyCode> activeKeys) {
+    private void animate() {
         long currentTime = System.nanoTime();
         Image[] currentFrame = PlayerAnimation.getIdleDownFrames();
-        if(activeKeys.size() == 0) {
+        if(this.gameCanvas.getActiveKeys().size() == 0) {
         	switch (getDirection()) {
         		case Direction.DOWN:
         			currentFrame = PlayerAnimation.getIdleDownFrames();
@@ -188,6 +223,7 @@ public class Player {
     public void setup() {
     	this.gameCanvas = GameController.getGameCanvas();
     	this.selectTile.loadPlayer();
+    	this.inventory = GameController.getInventory();
     }
     
     public Direction getDirection() {

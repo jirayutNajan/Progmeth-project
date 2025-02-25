@@ -1,6 +1,5 @@
 package logic.map;
 
-import javafx.scene.canvas.GraphicsContext;
 import logic.components.Constants;
 import logic.components.Direction;
 import logic.components.player.Player;
@@ -40,8 +39,11 @@ public class SelectTile extends Tile {
 	    }
 
 	    int[] tilePosition = player.getTilePosition(dX, dY);
-	    setTile(GameController.getGameCanvas().getTileMapsLayers().get(0).getTileAt(tilePosition[0]/Constants.TILE_SIZE, tilePosition[1]/Constants.TILE_SIZE));
-
+	    setTile(GameController.getGameCanvas().getTileMapsLayers().get(Constants.LAYER_VEG).getTileAt(tilePosition[0], tilePosition[1]));
+	    if(getTile() == null) {
+	    	setTile(GameController.getGameCanvas().getTileMapsLayers().get(Constants.LAYER_FARMLAND).getTileAt(tilePosition[0], tilePosition[1]));
+	    }
+	    
 	    return tilePosition;
 	}
 	

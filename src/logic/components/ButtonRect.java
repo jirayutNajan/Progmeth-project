@@ -9,53 +9,47 @@ import javafx.geometry.VPos;
 public class ButtonRect {
     private double x, y, width, height;
     private String text;
-    private Runnable onClick;
-    private Image image;
+    private Image normalImage;
+    private Image hoverImage;
+    private boolean isHovered = false;
 
-    public ButtonRect(double x, double y, double width, double height, String text, String imagePath) {
+    public ButtonRect(double x, double y, double width, double height, String text, String normalImagePath, String hoverImagePath) {
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
         this.text = text;
 
-        if (imagePath != null && !imagePath.isEmpty()) {
-            // Load image with specified size & disable smooth scaling
-            this.image = new Image(imagePath, width, height, false, false);
+        if (normalImagePath != null && !normalImagePath.isEmpty()) {
+            this.normalImage = new Image(normalImagePath, width, height, false, false);
+        }
+        if (hoverImagePath != null && !hoverImagePath.isEmpty()) {
+            this.hoverImage = new Image(hoverImagePath, width, height, false, false);
         }
     }
 
     public void draw(GraphicsContext gc) {
-        // Disable image smoothing before drawing
         gc.setImageSmoothing(false);
+        Image imageToDraw = isHovered && hoverImage != null ? hoverImage : normalImage;
 
-        // Draw image if available
-        if (image != null) {
-            gc.drawImage(image, x, y, width, height);
+        if (imageToDraw != null) {
+            gc.drawImage(imageToDraw, x, y, width, height);
         } else {
-            // Default rectangle background if no image
             gc.setFill(Color.DARKGRAY);
             gc.fillRect(x, y, width, height);
         }
 
-        // Draw text centered on button
         gc.setFill(Color.WHITE);
         gc.setTextAlign(TextAlignment.CENTER);
         gc.setTextBaseline(VPos.CENTER);
         gc.fillText(text, x + width / 2, y + height / 2);
     }
 
-    public boolean isClicked(double clickX, double clickY) {
-        return clickX >= x && clickX <= x + width && clickY >= y && clickY <= y + height;
+    public boolean isHovered(double mouseX, double mouseY) {
+        return mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
     }
 
-    public void setOnClick(Runnable onClick) {
-        this.onClick = onClick;
-    }
-
-    public void click() {
-        if (onClick != null) {
-            onClick.run();
-        }
+    public void setHovered(boolean hovered) {
+        this.isHovered = hovered;
     }
 }

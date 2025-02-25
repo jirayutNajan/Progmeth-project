@@ -4,6 +4,7 @@ import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import logic.components.Constants;
+import logic.components.Inventory;
 import logic.components.gameScene.GameCanvas;
 import logic.components.gameScene.GameClock;
 import logic.components.player.Player;
@@ -14,6 +15,7 @@ public class GameController {
 	private static GameClock gameClock;
 	private static double gameDarkness;
 	private static GameCanvas gameCanvas;
+	private static Inventory inventory;
 	
 	public static void setup(Stage stage) {
 		reset();
@@ -23,10 +25,12 @@ public class GameController {
 	
 	public static void reset() {
 		score = 0;
-		player = new Player(100, 100, 4, 30, 30);
+		player = new Player(6 * Constants.TILE_SIZE, 10 * Constants.TILE_SIZE, 4, 30, 30);
 		gameClock = new GameClock(5);
+		inventory = new Inventory();
 		gameCanvas = new GameCanvas(Constants.WINDOW_WIDTH, Constants.WINDOW_HEIGHT);
 		player.setup();
+		inventory.setup();
 		gameDarkness = 0.5; // ค่าเริ่มต้น
 	}
 	
@@ -49,6 +53,14 @@ public class GameController {
 		}
 	}
 	
+	public static Inventory getInventory() {
+		return inventory;
+	}
+
+	public static void setInventory(Inventory inventory) {
+		GameController.inventory = inventory;
+	}
+
 	public static int getGameScore() {
 		return score;
 	}
